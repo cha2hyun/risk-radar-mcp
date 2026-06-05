@@ -69,6 +69,17 @@ def _records(df: pd.DataFrame, limit: int | None = None) -> list[dict[str, Any]]
     return rows
 
 
+def _as_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def get_history(symbol: str, period: str = "6mo", interval: str = "1d") -> pd.DataFrame:
     normalized = normalize_symbol(symbol)
     if period not in ALLOWED_PERIODS:
@@ -91,15 +102,19 @@ def quote(symbol: str) -> dict[str, Any]:
     latest = hist.iloc[-1]
     previous_close = hist["Close"].iloc[-2] if len(hist) > 1 else None
     last_price = latest.get("Close")
-    change = None
-    change_percent = None
-    if previous_close is not None and previous_close != 0:
-        change = float(last_price - previous_close)
-        change_percent = float((change / previous_close) * 100)
-
     info: dict[str, Any] = {}
     try:
         raw_info = ticker.fast_info
+        fast_last_price = _as_float(getattr(raw_info, "last_price", None))
+        if fast_last_price is None:
+            fast_last_price = _as_float(getattr(raw_info, "lastPrice", None))
+        if _as_float(last_price) is None and fast_last_price is not None:
+            last_price = fast_last_price
+        fast_previous_close = _as_float(getattr(raw_info, "regular_market_previous_close", None))
+        if fast_previous_close is None:
+            fast_previous_close = _as_float(getattr(raw_info, "regularMarketPreviousClose", None))
+        if _as_float(previous_close) is None and fast_previous_close is not None:
+            previous_close = fast_previous_close
         info = {
             "currency": getattr(raw_info, "currency", None),
             "exchange": getattr(raw_info, "exchange", None),
@@ -107,6 +122,14 @@ def quote(symbol: str) -> dict[str, Any]:
         }
     except Exception:
         info = {}
+
+    last_price_float = _as_float(last_price)
+    previous_close_float = _as_float(previous_close)
+    change = None
+    change_percent = None
+    if last_price_float is not None and previous_close_float not in (None, 0):
+        change = last_price_float - previous_close_float
+        change_percent = (change / previous_close_float) * 100
 
     return {
         "symbol": normalized,
@@ -196,7 +219,12 @@ def quotes(symbols: list[str]) -> dict[str, Any]:
             data = history_by_symbol.get(normalized)
             if data is None or data.empty:
                 raise ValueError(f"no quote data returned for symbol: {normalized}")
-            item = _quote_from_history(input_symbol, normalized, data)
+            latest_close = data.iloc[-1].get("Close")
+            if _as_float(latest_close) is None:
+                item = quote(input_symbol)
+                item["input_symbol"] = input_symbol
+            else:
+                item = _quote_from_history(input_symbol, normalized, data)
             item["status"] = "ok"
         except Exception as exc:
             item = {
@@ -214,17 +242,6 @@ def quotes(symbols: list[str]) -> dict[str, Any]:
         "items": items,
         "note": "Yahoo Finance data may be delayed, incomplete, or unavailable.",
     }
-
-
-def _as_float(value: Any) -> float | None:
-    if value is None:
-        return None
-    try:
-        if pd.isna(value):
-            return None
-        return float(value)
-    except (TypeError, ValueError):
-        return None
 
 
 def _cost_basis_native(position: dict[str, Any], quantity: float, currency: str) -> float | None:

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "risk-radar-mcp"
-version = "0.2.0"
+version = "0.2.1"
 description = "Read-only MCP server for market quotes, indicators, macro data, and risk snapshots."
 readme = "README.md"
 requires-python = ">=3.11"
