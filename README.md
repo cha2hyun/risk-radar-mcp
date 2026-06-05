@@ -7,6 +7,8 @@ Read-only MCP server for market quotes, technical indicators, macro data, and ri
 ## Features
 
 - Yahoo Finance/yfinance quote lookup
+- Batched quote lookup for many symbols
+- Read-only position valuation estimates
 - OHLCV history
 - Technical indicators: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV
 - BTC/Nasdaq risk snapshot
@@ -21,7 +23,7 @@ This project is read-only.
 - No trading
 - No broker login
 - No account access
-- No portfolio management
+- No discretionary portfolio management
 - No financial advice
 
 Market data may be delayed, incomplete, inaccurate, or unavailable. Use this project for research and informational workflows only.
@@ -51,6 +53,8 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 ## Tools
 
 - `get_quote(symbol)`
+- `get_quotes(symbols)`
+- `value_positions(positions, valuation_currency)`
 - `get_ohlcv(symbol, period, interval, limit)`
 - `get_indicators(symbol, period, interval)`
 - `get_market_snapshot()`
@@ -70,6 +74,7 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 - `gold` -> `GC=F`
 - `oil` -> `CL=F`
 - `usdkrw` -> `KRW=X`
+- `005930` -> `005930.KS`
 
 ## Roadmap
 
@@ -92,6 +97,8 @@ MIT
 ## 기능
 
 - Yahoo Finance/yfinance 기반 현재가 조회
+- 여러 종목 일괄 현재가 조회
+- read-only 포지션 평가 추정
 - OHLCV 히스토리
 - 보조지표: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV
 - BTC/나스닥 리스크 스냅샷
@@ -106,7 +113,7 @@ MIT
 - 매매 실행 없음
 - 브로커 로그인 없음
 - 계좌 접근 없음
-- 포트폴리오 관리 없음
+- 재량적 포트폴리오 운용 없음
 - 투자 조언 아님
 
 시장 데이터는 지연되거나, 누락되거나, 부정확하거나, 일시적으로 사용할 수 없을 수 있습니다. 연구 및 정보 확인 용도로만 사용하세요.
@@ -136,6 +143,8 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 ## 도구
 
 - `get_quote(symbol)`
+- `get_quotes(symbols)`
+- `value_positions(positions, valuation_currency)`
 - `get_ohlcv(symbol, period, interval, limit)`
 - `get_indicators(symbol, period, interval)`
 - `get_market_snapshot()`
@@ -155,6 +164,7 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 - `gold` -> `GC=F`
 - `oil` -> `CL=F`
 - `usdkrw` -> `KRW=X`
+- `005930` -> `005930.KS`
 
 ## 로드맵
 

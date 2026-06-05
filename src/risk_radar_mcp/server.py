@@ -26,6 +26,31 @@ def get_quote(symbol: str) -> dict[str, Any]:
 
 
 @mcp.tool
+def get_quotes(symbols: list[str]) -> dict[str, Any]:
+    """Get latest available quotes for multiple symbols in one batched request."""
+
+    return yfinance_provider.quotes(symbols)
+
+
+@mcp.tool
+def value_positions(
+    positions: list[dict[str, Any]],
+    valuation_currency: str = "KRW",
+) -> dict[str, Any]:
+    """Estimate live position values from a list of portfolio positions.
+
+    Each position should include ticker or symbol, quantity, currency, and optional
+    cost-basis fields such as cost_basis_snapshot, cost_basis_snapshot_krw,
+    avg_cost_per_share, or avg_cost_per_share_krw.
+    """
+
+    return yfinance_provider.value_positions(
+        positions,
+        valuation_currency=valuation_currency,
+    )
+
+
+@mcp.tool
 def get_ohlcv(
     symbol: str,
     period: str = "6mo",

@@ -45,4 +45,9 @@ def normalize_symbol(symbol: str) -> str:
     value = symbol.strip()
     if not value:
         raise ValueError("symbol must not be empty")
-    return ALIASES.get(value.lower(), value.upper())
+    alias = ALIASES.get(value.lower())
+    if alias:
+        return alias
+    if len(value) == 6 and value.isdigit():
+        return f"{value}.KS"
+    return value.upper()
