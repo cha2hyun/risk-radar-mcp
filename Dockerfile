@@ -7,10 +7,10 @@ ENV RISK_RADAR_PORT=8765
 
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 
+RUN pip install --no-cache-dir uv
 RUN uv sync --no-dev
 
 EXPOSE 8765
