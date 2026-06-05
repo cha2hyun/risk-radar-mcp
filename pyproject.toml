@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "risk-radar-mcp"
+version = "0.1.0"
+description = "Read-only MCP server for market quotes, indicators, macro data, and risk snapshots."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+  { name = "cha2hyun" }
+]
+keywords = ["mcp", "market-data", "yfinance", "technical-analysis", "macro"]
+dependencies = [
+  "fastmcp>=2.0.0",
+  "pandas>=2.2.0",
+  "yfinance>=0.2.60",
+]
+
+[project.scripts]
+risk-radar-mcp = "risk_radar_mcp.server:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/risk_radar_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
