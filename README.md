@@ -100,7 +100,8 @@ returns market data even when FRED is unavailable.
 
 - V1: yfinance quotes, OHLCV, indicators, and market snapshot ✅
 - V1.5: FRED official macro data ✅ (FEDFUNDS, DGS10, DGS2, T10Y2Y, CPIAUCSL, UNRATE, PAYEMS, M2SL, BAMLH0A0HYM2, NFCI)
-- V2: Korea market data and investor flow where available
+- V2: Korea market data and investor flow ✅ (KRX OHLCV, 외국인/기관/개인 순매수, KOSPI/KOSDAQ 스냅샷)
+- V3: 뉴스 스크래핑, 토론방 크롤링, 실시간 투자 심리 통합
 
 ## License
 
@@ -209,7 +210,8 @@ https://fred.stlouisfed.org/docs/api/api_key.html 에서 발급받을 수 있습
 
 - V1: yfinance 현재가, OHLCV, 보조지표, 시장 스냅샷 ✅
 - V1.5: FRED 공식 매크로 데이터 ✅ (FEDFUNDS, DGS10, DGS2, T10Y2Y, CPIAUCSL, UNRATE, PAYEMS, M2SL, BAMLH0A0HYM2, NFCI)
-- V2: 가능한 범위의 한국 시장 데이터 및 투자자 수급
+- V2: 한국 시장 데이터 및 투자자 수급 ✅ (KRX OHLCV, 외국인/기관/개인 순매수, KOSPI/KOSDAQ 스냅샷)
+- V3: 뉴스 스크래핑, 토론방 크롤링, 실시간 투자 심리 통합
 
 ## 라이선스
 
