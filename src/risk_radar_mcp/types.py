@@ -56,3 +56,21 @@ class DashboardResult(TypedDict, total=False):
     generated_at: str
     stale_label: str
     error: str
+
+class InvestorFlowResult(TypedDict, total=False):
+    symbol: str
+    date: str
+    items: list[dict[str, Any]]
+    stale_label: str
+    error: str
+
+class KrxOhlcvResult(TypedDict, total=False):
+    symbol: str
+    rows: list[dict[str, Any]]
+    stale_label: str
+    error: str
+
+class KrxMarketSnapshotResult(TypedDict, total=False):
+    items: dict[str, Any]
+    stale_label: str
+    error: str

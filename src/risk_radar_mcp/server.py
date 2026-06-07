@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 
 from risk_radar_mcp.providers import yfinance_provider
 from risk_radar_mcp.providers import fred_provider
+from risk_radar_mcp.providers import krx_provider
 from risk_radar_mcp import portfolio
 
 mcp = FastMCP(
@@ -151,6 +152,30 @@ def get_risk_dashboard() -> dict[str, Any]:
             "Do not treat as real-time. No financial advice."
         ),
     }
+
+
+@mcp.tool
+def get_krx_ohlcv(symbol: str, start_date: str = '', end_date: str = '') -> dict[str, Any]:
+    """Get KRX OHLCV data."""
+    return krx_provider.krx_ohlcv(symbol, start_date, end_date)
+
+
+@mcp.tool
+def get_investor_flow(symbol: str, start_date: str = '', end_date: str = '') -> dict[str, Any]:
+    """Get KRX investor flow for a specific symbol."""
+    return krx_provider.investor_flow(symbol, start_date, end_date)
+
+
+@mcp.tool
+def get_market_investor_flow(date: str = '') -> dict[str, Any]:
+    """Get market-wide investor flow for KOSPI and KOSDAQ."""
+    return krx_provider.market_investor_flow(date)
+
+
+@mcp.tool
+def get_krx_market_snapshot() -> dict[str, Any]:
+    """Get KOSPI and KOSDAQ index snapshot."""
+    return krx_provider.krx_market_snapshot()
 
 
 def main() -> None:

@@ -17,6 +17,7 @@ dependencies = [
   "fastmcp>=2.0.0",
   "fredapi>=0.5.0",
   "pandas>=2.2.0",
+  "pykrx>=1.2.0",
   "yfinance>=0.2.60",
 ]
 

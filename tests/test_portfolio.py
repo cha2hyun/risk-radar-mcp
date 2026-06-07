@@ -1,6 +1,6 @@
 import pandas as pd
 from unittest.mock import MagicMock
-from risk_radar_mcp.providers import yfinance_provider
+from risk_radar_mcp import portfolio
 
 
 def test_value_positions_krw_with_usd_fx(monkeypatch) -> None:
@@ -31,7 +31,7 @@ def test_value_positions_krw_with_usd_fx(monkeypatch) -> None:
 
     monkeypatch.setattr("yfinance.download", fake_download)
 
-    result = yfinance_provider.value_positions(
+    result = portfolio.value_positions(
         [
             {
                 "account_id": "main",
