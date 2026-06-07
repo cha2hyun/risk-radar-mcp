@@ -1,33 +1,35 @@
-from typing import Any
-
+import pandas as pd
+from unittest.mock import MagicMock
 from risk_radar_mcp.providers import yfinance_provider
 
 
 def test_value_positions_krw_with_usd_fx(monkeypatch) -> None:
-    def fake_quotes(symbols: list[str]) -> dict[str, Any]:
-        prices = {
-            "005930": {"symbol": "005930.KS", "last_price": 80000, "status": "ok"},
-            "TQQQ": {"symbol": "TQQQ", "last_price": 100, "status": "ok"},
-        }
-        return {
-            "source": "test",
-            "count": len(symbols),
-            "items": [
-                {
-                    "input_symbol": symbol,
-                    "as_of": "2026-06-05",
-                    **prices[symbol],
-                }
-                for symbol in symbols
-            ],
-        }
+    def fake_ticker(symbol: str):
+        mock_ticker = MagicMock()
+        if symbol == "KRW=X":
+            class MockInfo:
+                last_price = 1400
+                currency = "KRW"
+            mock_ticker.fast_info = MockInfo()
+            df = pd.DataFrame(
+                {"Close": [1400, 1400], "Open": [1400, 1400]},
+                index=pd.date_range("2026-06-04", periods=2)
+            )
+            mock_ticker.history.return_value = df
+        return mock_ticker
 
-    def fake_quote(symbol: str) -> dict[str, Any]:
-        assert symbol == "usdkrw"
-        return {"symbol": "KRW=X", "last_price": 1400}
+    monkeypatch.setattr("yfinance.Ticker", fake_ticker)
 
-    monkeypatch.setattr(yfinance_provider, "quotes", fake_quotes)
-    monkeypatch.setattr(yfinance_provider, "quote", fake_quote)
+    def fake_download(tickers, **kwargs):
+        if isinstance(tickers, list) and len(tickers) > 1:
+            columns = pd.MultiIndex.from_product([["005930.KS", "TQQQ"], ["Close", "Open"]])
+            df = pd.DataFrame(index=pd.date_range("2026-06-04", periods=2), columns=columns)
+            df.loc[:, ("005930.KS", "Close")] = [80000, 80000]
+            df.loc[:, ("TQQQ", "Close")] = [100, 100]
+            return df
+        return pd.DataFrame()
+
+    monkeypatch.setattr("yfinance.download", fake_download)
 
     result = yfinance_provider.value_positions(
         [

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "risk-radar-mcp"
-version = "0.2.1"
+version = "0.3.0"
 description = "Read-only MCP server for market quotes, indicators, macro data, and risk snapshots."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -15,6 +15,7 @@ authors = [
 keywords = ["mcp", "market-data", "yfinance", "technical-analysis", "macro"]
 dependencies = [
   "fastmcp>=2.0.0",
+  "fredapi>=0.5.0",
   "pandas>=2.2.0",
   "yfinance>=0.2.60",
 ]

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime
 from typing import Any
 
 from fastmcp import FastMCP
 
 from risk_radar_mcp.providers import yfinance_provider
+from risk_radar_mcp.providers import fred_provider
+from risk_radar_mcp import portfolio
 
 mcp = FastMCP(
     name="risk-radar-mcp",
@@ -44,7 +47,7 @@ def value_positions(
     avg_cost_per_share, or avg_cost_per_share_krw.
     """
 
-    return yfinance_provider.value_positions(
+    return portfolio.value_positions(
         positions,
         valuation_currency=valuation_currency,
     )
@@ -87,6 +90,67 @@ def get_news(symbol: str, limit: int = 10) -> dict[str, Any]:
 
     safe_limit = max(1, min(limit, 25))
     return yfinance_provider.news(symbol, limit=safe_limit)
+
+
+@mcp.tool
+def get_macro_series(
+    series_id: str,
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> dict[str, Any]:
+    """Fetch historical FRED macro series data.
+
+    Common series: FEDFUNDS, DGS10, DGS2, T10Y2Y, CPIAUCSL, UNRATE,
+    PAYEMS, M2SL, BAMLH0A0HYM2, NFCI.
+    Dates in 'YYYY-MM-DD' format. Default: last 1 year.
+    Requires FRED_API_KEY env var.
+    """
+    return fred_provider.get_macro_series(series_id, start_date, end_date)
+
+
+@mcp.tool
+def get_macro_latest(series_ids: list[str]) -> dict[str, Any]:
+    """Get the latest observation for one or more FRED macro series.
+
+    Requires FRED_API_KEY env var.
+    """
+    return fred_provider.get_macro_latest(series_ids)
+
+
+@mcp.tool
+def get_macro_snapshot() -> dict[str, Any]:
+    """Get a snapshot of key FRED macro indicators for risk assessment.
+
+    Covers: Fed funds, Treasury yields, spread, CPI, unemployment,
+    payrolls, M2, high-yield spread, and financial conditions.
+    Requires FRED_API_KEY env var.
+    """
+    return fred_provider.get_macro_snapshot()
+
+
+@mcp.tool
+def get_risk_dashboard() -> dict[str, Any]:
+    """Combine market snapshot (yfinance) with macro snapshot (FRED).
+
+    Returns a consolidated risk dashboard with both market and macro views.
+    FRED portion fails gracefully when FRED_API_KEY is not set.
+    """
+    market = yfinance_provider.market_snapshot()
+
+    try:
+        macro = fred_provider.get_macro_snapshot()
+    except Exception as exc:
+        macro = {"error": str(exc), "snapshot": {}}
+
+    return {
+        "market": market,
+        "macro": macro,
+        "generated_at": datetime.now().isoformat(),
+        "stale_label": (
+            "⚠️ Market data may be delayed. Macro data is delayed and revised. "
+            "Do not treat as real-time. No financial advice."
+        ),
+    }
 
 
 def main() -> None:

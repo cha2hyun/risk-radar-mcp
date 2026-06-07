@@ -1,5 +1,9 @@
 """Symbol normalization and default market snapshot universe."""
 
+import os
+
+DEFAULT_EXCHANGE_SUFFIX = os.getenv("RISK_RADAR_DEFAULT_EXCHANGE", ".KS")
+
 ALIASES: dict[str, str] = {
     "btc": "BTC-USD",
     "bitcoin": "BTC-USD",
@@ -49,5 +53,5 @@ def normalize_symbol(symbol: str) -> str:
     if alias:
         return alias
     if len(value) == 6 and value.isdigit():
-        return f"{value}.KS"
+        return f"{value}{DEFAULT_EXCHANGE_SUFFIX}"
     return value.upper()

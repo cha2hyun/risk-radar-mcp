@@ -13,6 +13,8 @@ Read-only MCP server for market quotes, technical indicators, macro data, and ri
 - Technical indicators: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV
 - BTC/Nasdaq risk snapshot
 - Basic ticker news
+- FRED macro data: Treasury yields, Fed funds, CPI, unemployment, payrolls, M2, spreads, NFCI
+- Combined risk dashboard (market + macro)
 - Local HTTP MCP runtime
 - Docker-friendly and `uv`-friendly
 
@@ -59,6 +61,24 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 - `get_indicators(symbol, period, interval)`
 - `get_market_snapshot()`
 - `get_news(symbol, limit)`
+- `get_macro_series(series_id, start_date, end_date)`
+- `get_macro_latest(series_ids)`
+- `get_macro_snapshot()`
+- `get_risk_dashboard()`
+
+## FRED Configuration
+
+FRED macro tools require a free FRED API key. Set it before starting the server:
+
+```bash
+export FRED_API_KEY=your_key_here
+uv run risk-radar-mcp
+```
+
+Get a key at https://fred.stlouisfed.org/docs/api/api_key.html
+
+Without `FRED_API_KEY`, the yfinance tools still work. The risk dashboard
+returns market data even when FRED is unavailable.
 
 ## Common Symbols
 
@@ -78,8 +98,8 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 
 ## Roadmap
 
-- V1: yfinance quotes, OHLCV, indicators, and market snapshot
-- V1.5: optional FRED official macro data
+- V1: yfinance quotes, OHLCV, indicators, and market snapshot ✅
+- V1.5: FRED official macro data ✅ (FEDFUNDS, DGS10, DGS2, T10Y2Y, CPIAUCSL, UNRATE, PAYEMS, M2SL, BAMLH0A0HYM2, NFCI)
 - V2: Korea market data and investor flow where available
 
 ## License
@@ -103,6 +123,8 @@ MIT
 - 보조지표: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV
 - BTC/나스닥 리스크 스냅샷
 - 기본 티커 뉴스
+- FRED 매크로 데이터: 국채금리, 기준금리, CPI, 실업률, 고용, M2, 스프레드, NFCI
+- 통합 리스크 대시보드 (시장 + 매크로)
 - 로컬 HTTP MCP 실행
 - Docker 및 `uv` 기반 실행 지원
 
@@ -149,6 +171,23 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 - `get_indicators(symbol, period, interval)`
 - `get_market_snapshot()`
 - `get_news(symbol, limit)`
+- `get_macro_series(series_id, start_date, end_date)`
+- `get_macro_latest(series_ids)`
+- `get_macro_snapshot()`
+- `get_risk_dashboard()`
+
+## FRED 설정
+
+FRED 매크로 도구를 사용하려면 무료 FRED API 키가 필요합니다.
+
+```bash
+export FRED_API_KEY=your_key_here
+uv run risk-radar-mcp
+```
+
+https://fred.stlouisfed.org/docs/api/api_key.html 에서 발급받을 수 있습니다.
+
+`FRED_API_KEY`가 없어도 yfinance 도구는 정상 작동합니다.
 
 ## 주요 심볼
 
@@ -168,8 +207,8 @@ docker run --rm -p 8765:8765 risk-radar-mcp
 
 ## 로드맵
 
-- V1: yfinance 현재가, OHLCV, 보조지표, 시장 스냅샷
-- V1.5: 선택적 FRED 공식 매크로 데이터
+- V1: yfinance 현재가, OHLCV, 보조지표, 시장 스냅샷 ✅
+- V1.5: FRED 공식 매크로 데이터 ✅ (FEDFUNDS, DGS10, DGS2, T10Y2Y, CPIAUCSL, UNRATE, PAYEMS, M2SL, BAMLH0A0HYM2, NFCI)
 - V2: 가능한 범위의 한국 시장 데이터 및 투자자 수급
 
 ## 라이선스

@@ -64,7 +64,8 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
 def latest_indicator_snapshot(df: pd.DataFrame) -> dict[str, float | str | None]:
     """Return the latest row as a JSON-friendly indicator snapshot."""
 
-    enriched = add_indicators(df)
+    df_slice = df.tail(200)
+    enriched = add_indicators(df_slice)
     latest = enriched.dropna(how="all").tail(1)
     if latest.empty:
         return {}
