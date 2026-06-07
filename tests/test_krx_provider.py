@@ -33,41 +33,25 @@ class TestKrxProvider(unittest.TestCase):
         self.assertEqual(len(res["rows"]), 0)
         self.assertIn("error", res)
 
-    @patch("pykrx.stock.get_market_trading_value_by_investor")
-    def test_investor_flow(self, mock_get):
-        df = pd.DataFrame(
-            {"기관합계": [100], "기타법인": [0], "개인": [-50], "외국인합계": [-50], "전체": [0]},
-            index=pd.date_range("2023-01-01", periods=1)
-        )
-        mock_get.return_value = df
-        
+    def test_investor_flow(self):
         res = investor_flow("005930", "20230101", "20230101")
         self.assertEqual(res["symbol"], "005930")
-        self.assertEqual(len(res["items"]), 1)
-        self.assertEqual(res["items"][0]["기관합계"], 100)
+        self.assertEqual(len(res["items"]), 0)
+        self.assertIn("error", res)
+        self.assertEqual(res["error"], "pykrx 1.2.8 does not support investor_flow API")
 
-    @patch("pykrx.stock.get_market_trading_value_by_investor")
-    def test_investor_flow_error(self, mock_get):
-        mock_get.side_effect = Exception("API Error")
+    def test_investor_flow_error(self):
         res = investor_flow("005930")
         self.assertIn("error", res)
 
-    @patch("pykrx.stock.get_market_net_purchases_of_equities_by_investor", create=True)
-    def test_market_investor_flow(self, mock_get):
-        df = pd.DataFrame(
-            {"순매수": [100]},
-            index=pd.Index(["기관합계"])
-        )
-        mock_get.return_value = df
-        
+    def test_market_investor_flow(self):
         res = market_investor_flow("20230101")
         self.assertEqual(res["symbol"], "MARKET")
-        self.assertEqual(len(res["items"]), 2) # 1 for KOSPI, 1 for KOSDAQ
-        self.assertEqual(res["items"][0]["market"], "KOSPI")
+        self.assertEqual(len(res["items"]), 0)
+        self.assertIn("error", res)
+        self.assertEqual(res["error"], "pykrx 1.2.8 does not support market_investor_flow API")
 
-    @patch("pykrx.stock.get_market_net_purchases_of_equities_by_investor", create=True)
-    def test_market_investor_flow_error(self, mock_get):
-        mock_get.side_effect = Exception("API Error")
+    def test_market_investor_flow_error(self):
         res = market_investor_flow()
         self.assertIn("error", res)
 

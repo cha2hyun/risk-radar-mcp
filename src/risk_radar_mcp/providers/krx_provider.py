@@ -48,11 +48,11 @@ def krx_ohlcv(symbol: str, start_date: str = '', end_date: str = '') -> KrxOhlcv
         s_date, e_date = _get_dates(start_date, end_date)
         
         if symbol.startswith("^") or symbol in ("1001", "2001"):
-            try:
-                idx_sym = "1001" if symbol == "^KS11" else "2001" if symbol == "^KQ11" else symbol.replace("^", "")
-                df = stock.get_index_ohlcv(s_date, e_date, idx_sym)
-            except Exception as e:
-                raise Exception(f"get_index_ohlcv failed: {e}. Fallback to yfinance provider for index tickers (e.g., ^KS11).")
+            yf_symbol = "^KS11" if symbol in ("1001", "^KS11") else "^KQ11" if symbol in ("2001", "^KQ11") else symbol
+            s_date_yf = f"{s_date[:4]}-{s_date[4:6]}-{s_date[6:]}"
+            e_date_yf = f"{e_date[:4]}-{e_date[4:6]}-{e_date[6:]}"
+            e_dt = datetime.strptime(e_date_yf, "%Y-%m-%d") + timedelta(days=1)
+            df = yf.Ticker(yf_symbol).history(start=s_date_yf, end=e_dt.strftime("%Y-%m-%d"))
         else:
             df = stock.get_market_ohlcv(s_date, e_date, symbol)
             
@@ -71,63 +71,22 @@ def krx_ohlcv(symbol: str, start_date: str = '', end_date: str = '') -> KrxOhlcv
         }
 
 def investor_flow(symbol: str, start_date: str = '', end_date: str = '') -> InvestorFlowResult:
-    try:
-        from pykrx import stock
-        s_date, e_date = _get_dates(start_date, end_date)
-        df = stock.get_market_trading_value_by_investor(s_date, e_date, symbol)
-        return {
-            "symbol": symbol,
-            "date": f"{s_date}-{e_date}",
-            "items": _records(df),
-            "stale_label": STALE_LABEL,
-        }
-    except Exception as exc:
-        return {
-            "symbol": symbol,
-            "date": "",
-            "items": [],
-            "stale_label": STALE_LABEL,
-            "error": f"pykrx investor flow API broken in 1.2.8: {exc}",
-        }
+    return {
+        "symbol": symbol,
+        "date": "",
+        "items": [],
+        "stale_label": STALE_LABEL,
+        "error": "pykrx 1.2.8 does not support investor_flow API",
+    }
 
 def market_investor_flow(date: str = '') -> InvestorFlowResult:
-    try:
-        from pykrx import stock
-        s_date, e_date = _get_dates(date, date)
-        
-        if hasattr(stock, "get_market_net_purchases_of_equities_by_investor"):
-            method = stock.get_market_net_purchases_of_equities_by_investor
-        else:
-            method = stock.get_market_net_purchases_of_equities
-            
-        # KOSPI
-        df_kospi = method(s_date, e_date, "KOSPI", "ALL")
-        items_kospi = _records(df_kospi) if df_kospi is not None else []
-        for item in items_kospi:
-            item["market"] = "KOSPI"
-            
-        # KOSDAQ
-        df_kosdaq = method(s_date, e_date, "KOSDAQ", "ALL")
-        items_kosdaq = _records(df_kosdaq) if df_kosdaq is not None else []
-        for item in items_kosdaq:
-            item["market"] = "KOSDAQ"
-            
-        items = items_kospi + items_kosdaq
-        
-        return {
-            "symbol": "MARKET",
-            "date": s_date,
-            "items": items,
-            "stale_label": STALE_LABEL,
-        }
-    except Exception as exc:
-        return {
-            "symbol": "MARKET",
-            "date": "",
-            "items": [],
-            "stale_label": STALE_LABEL,
-            "error": str(exc),
-        }
+    return {
+        "symbol": "MARKET",
+        "date": "",
+        "items": [],
+        "stale_label": STALE_LABEL,
+        "error": "pykrx 1.2.8 does not support market_investor_flow API",
+    }
 
 def krx_market_snapshot() -> KrxMarketSnapshotResult:
     try:
